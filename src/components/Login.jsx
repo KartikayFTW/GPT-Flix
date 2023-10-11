@@ -1,9 +1,32 @@
 import { useState } from "react";
 import Header from "./Header";
+import { checkValidateData } from "../utils/validate";
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
+
+  const [errors, setErrors] = useState({});
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const validationErrors = checkValidateData(
+      email,
+      password,
+      isSignInForm ? null : name
+    );
+    setErrors(validationErrors);
+  };
+
   const toggleSignInForm = () => {
     setIsSignInForm(!isSignInForm);
+    setErrors({});
+    setEmail("");
+    setPassword("");
+    setName("");
   };
 
   return (
@@ -17,7 +40,10 @@ const Login = () => {
         />
 
         <div className="absolute top-0 left-0 w-full h-full flex place-items-center justify-center">
-          <form className="p-12 md:bg-[#000000BF] bg-black md:w-[420px] w-full md:h-[600px] h-full">
+          <form
+            onSubmit={handleSubmit}
+            className="p-12 md:bg-[#000000BF] bg-black md:w-[420px] w-full md:h-[600px] h-full"
+          >
             <div className="flex flex-col justify-center items-center h-5/6 gap-20 ">
               <div className="w-full">
                 <h1 className="font-medium text-4xl text-white ">
@@ -25,24 +51,71 @@ const Login = () => {
                 </h1>
               </div>
               <div className="w-full flex flex-col justify-center place-items-center">
-                {!isSignInForm ? (
-                  <input
-                    type="text"
-                    placeholder="Name"
-                    className="block w-full p-2 m-2 bg-gray-700"
-                  />
-                ) : null}
+                {!isSignInForm && (
+                  <>
+                    <input
+                      type="text"
+                      placeholder="Name"
+                      className={`block w-full p-2 m-2 bg-gray-700 ${
+                        errors.name ? "border border-red-500" : ""
+                      }`}
+                      value={name}
+                      onChange={(e) => {
+                        setName(e.target.value);
+                        setErrors((prevErrors) => {
+                          const { name, ...rest } = prevErrors;
+                          return rest;
+                        });
+                      }}
+                      autoFocus={errors.name}
+                    />
+                    <div className="text-red-500 text-xs w-full h-4">
+                      {errors.name ? <span>{errors.name}</span> : null}
+                    </div>
+                  </>
+                )}
                 <input
-                  type="text"
+                  type="email"
                   placeholder="Email Address"
-                  className="block w-full p-2 m-2 bg-gray-700"
+                  className={`block w-full p-2 m-2 bg-gray-700 ${
+                    errors.email ? "border border-red-500" : ""
+                  }`}
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setErrors((prevErrors) => {
+                      const { email, ...rest } = prevErrors;
+                      return rest;
+                    });
+                  }}
+                  autoFocus={errors.email}
                 />
+                <div className="text-red-500 text-xs w-full h-4">
+                  {errors.email ? <span>{errors.email}</span> : null}
+                </div>
                 <input
                   type="password"
                   placeholder="Password"
-                  className="block w-full p-2 m-2 bg-gray-700"
+                  className={`block w-full p-2 m-2 bg-gray-700 ${
+                    errors.password ? "border border-red-500" : ""
+                  }`}
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setErrors((prevErrors) => {
+                      const { password, ...rest } = prevErrors;
+                      return rest;
+                    });
+                  }}
+                  autoFocus={errors.password}
                 />
-                <button className="block w-full p-4 m-4 bg-red-700 text-white font-bold rounded-lg">
+                <div className="text-red-500 text-xs w-full h-4">
+                  {errors.password ? <span>{errors.password}</span> : null}
+                </div>
+                <button
+                  //   onClick={handleBtnClick}
+                  className="block w-full p-4 m-4 bg-red-700 text-white font-bold rounded-lg"
+                >
                   {isSignInForm ? "Sign In" : "Sign Up"}
                 </button>
                 <div
