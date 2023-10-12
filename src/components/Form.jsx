@@ -1,14 +1,26 @@
 import React from "react";
 import { useState } from "react";
 import { checkValidateData } from "../utils/validate";
+import { useNavigate } from "react-router-dom";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
+import { auth } from "../utils/firebase";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/store/userSlice";
 const Form = () => {
+  const dispatch = useDispatch();
   const [isSignInForm, setIsSignInForm] = useState(true);
 
   const [errors, setErrors] = useState({});
+  const [authError, setAuthError] = useState();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -19,6 +31,61 @@ const Form = () => {
       isSignInForm ? null : name
     );
     setErrors(validationErrors);
+
+    const errorCount = Object.keys(validationErrors).filter(
+      (errorKey) => !(isSignInForm && errorKey === "name")
+    ).length;
+
+    // If there are validation errors, return early
+    if (errorCount > 0) {
+      return;
+    }
+
+    // Sign In Sign Up Logic
+
+    if (!isSignInForm) {
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // Signed up
+          setAuthError();
+          const user = userCredential.user;
+          updateProfile(auth.currentUser, {
+            displayName: name,
+            photoURL: "https://example.com/jane-q-user/profile.jpg",
+          }).then(() => {
+            const { uid, email, displayName, photoURL } = auth.currentUser;
+
+            dispatch(
+              addUser({
+                uid: uid,
+                email: email,
+                displayName: displayName,
+                photoURL: photoURL,
+              })
+            );
+            navigate("/browse");
+          });
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setAuthError(errorCode + errorMessage);
+          // ..
+        });
+    } else {
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // Signed in
+          setAuthError();
+          const user = userCredential.user;
+          navigate("/browse");
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setAuthError(errorCode + errorMessage);
+        });
+    }
   };
 
   const toggleSignInForm = () => {
@@ -102,6 +169,7 @@ const Form = () => {
             <div className="text-red-500 text-xs w-full h-4">
               {errors.password ? <span>{errors.password}</span> : null}
             </div>
+
             <button
               //   onClick={handleBtnClick}
               className="block w-full p-4 m-4 bg-red-700 text-white font-bold rounded-lg"
