@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { checkValidateData } from "../utils/validate";
-import { useNavigate } from "react-router-dom";
+
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -20,7 +20,6 @@ const Form = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -63,7 +62,6 @@ const Form = () => {
                 photoURL: photoURL,
               })
             );
-            navigate("/browse");
           });
         })
         .catch((error) => {
@@ -78,7 +76,6 @@ const Form = () => {
           // Signed in
           setAuthError();
           const user = userCredential.user;
-          navigate("/browse");
         })
         .catch((error) => {
           const errorCode = error.code;
