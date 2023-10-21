@@ -9,7 +9,7 @@ const MainComponent = () => {
     (state) => state.movies?.nowPlayingMovies
   );
   console.log(nowPlayingMovies);
-  const mainMovie = nowPlayingMovies && nowPlayingMovies[5];
+  const mainMovie = nowPlayingMovies && nowPlayingMovies[2];
   if (!mainMovie) return null;
   const { original_title, overview, id } = mainMovie;
   return (

@@ -5,8 +5,22 @@ import MainComponent from "../../components/MainComponent";
 import SecondaryComponent from "../../components/SecondaryComponent";
 
 const Browse = () => {
-  // const { nowPlayingMovies } = useBrowsePage();
-  useBrowsePage();
+  const {
+    isNowPlayingLoading,
+    isPopularLoading,
+    isTrendingLoading,
+    isUpcomingLoading,
+    isTopRatedLoading,
+  } = useBrowsePage();
+
+  if (
+    isNowPlayingLoading ||
+    isPopularLoading ||
+    isTrendingLoading ||
+    isUpcomingLoading ||
+    isTopRatedLoading
+  )
+    return <h1>Loading</h1>;
 
   return (
     <div>
